@@ -3,13 +3,14 @@
 import React, { useState, useRef } from 'react';
 import MicRecorder from 'mic-recorder-to-mp3';
 import axios from 'axios';
-require('dotenv').config();
+import { Button, Container, Typography, Box } from '@mui/material';
 
 function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [response, setResponse] = useState('');
   const [transcription, setTranscription] = useState('');
   const recorderRef = useRef(new MicRecorder({ bitRate: 128 }));
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleRecord = () => {
     if (isRecording) {
@@ -76,20 +77,33 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>AI Voice Agent</h1>
-      <button onClick={handleRecord}>
-        {isRecording ? 'Stop Recording' : 'Start Recording'}
-      </button>
-      <div>
-        <h2>Transcription</h2>
-        <p>{transcription}</p>
-      </div>
-      <div>
-        <h2>AI Response</h2>
-        <p>{response}</p>
-      </div>
-    </div>
+    <Container maxWidth="sm">
+      <Typography variant="h3" component="h1" gutterBottom>
+        AI Voice Agent
+      </Typography>
+      <Box my={4}>
+        <Button
+          variant="contained"
+          color={isRecording ? "secondary" : "primary"}
+          onClick={handleRecord}
+          fullWidth
+        >
+          {isRecording ? 'Stop Recording' : 'Start Recording'}
+        </Button>
+      </Box>
+      <Box my={4}>
+        <Typography variant="h5" component="h2">
+          Transcription
+        </Typography>
+        <Typography variant="body1">{transcription}</Typography>
+      </Box>
+      <Box my={4}>
+        <Typography variant="h5" component="h2">
+          AI Response
+        </Typography>
+        <Typography variant="body1">{response}</Typography>
+      </Box>
+    </Container>
   );
 }
 

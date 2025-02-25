@@ -36,6 +36,10 @@ function App() {
       setStatus('getting AI response');
       const aiResponse = await axios.post(`${apiUrl}/api/chat`, {
         message: transcription
+      }, {
+        headers: {
+          'Accept-Language': 'fr'
+        }
       });
       console.log("AI response received:", aiResponse.data);
       const responseText = aiResponse.data.response;
@@ -82,6 +86,7 @@ function App() {
           const response = await axios.post(`${apiUrl}/api/transcribe`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
+              'Accept-Language': 'fr'
             },
           });
           console.log("Server response:", response.data);
@@ -128,7 +133,8 @@ function App() {
         message: text
       }, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept-Language': 'fr'
         }
       });
       console.log('Raw response:', response);
@@ -155,7 +161,7 @@ function App() {
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
+    utterance.lang = 'fr-FR';
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
@@ -196,6 +202,13 @@ function App() {
   const processInput = (value) => {
     console.log('Processing input:', value);
   };
+
+  useEffect(() => {
+    const voices = window.speechSynthesis.getVoices();
+    voices.forEach(voice => {
+      console.log(`Voice: ${voice.name}, Lang: ${voice.lang}`);
+    });
+  }, []);
 
   return (
     <Container maxWidth="sm">

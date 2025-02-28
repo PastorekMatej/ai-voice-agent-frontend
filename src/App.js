@@ -46,7 +46,7 @@ function App() {
       setAiResponse(responseText);
       
       // Appeler directement speakText avec le texte de la réponse
-      speakText(responseText);
+      await speakText(responseText);
       
       setStatus('done');
     } catch (error) {
@@ -140,7 +140,7 @@ function App() {
       console.log('Raw response:', response);
       console.log('Response data:', response.data);
       setResponse(response.data.response);
-      speakText(response.data.response);
+      await speakText(response.data.response);
     } catch (error) {
       console.error('Full error object:', error);
       console.error('Error response:', error.response?.data);
@@ -150,34 +150,26 @@ function App() {
   };
 
   // Fonction de synthèse vocale avec plus de logs
-  const speakText = (text) => {
+  const speakText = async (text) => {
     console.log("Starting speech synthesis for:", text);
-    if (!window.speechSynthesis) {
-      console.error("Speech synthesis not available");
-      return;
+    try {
+        // Make a POST request to the backend to synthesize the text
+        const response = await axios.post(`${apiUrl}/api/synthesize`, {
+            message: text
+        }, {
+            responseType: 'blob'  // Ensure the response is treated as a binary blob
+        });
+
+        // Create a Blob from the response data
+        const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
+        // Create a URL for the Blob
+        const audioUrl = URL.createObjectURL(audioBlob);
+        // Create an Audio object and play the audio
+        const audio = new Audio(audioUrl);
+        audio.play();
+    } catch (error) {
+        console.error("Error during speech synthesis:", error);
     }
-
-    // Arrêter toute synthèse vocale en cours
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fr-FR';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-
-    utterance.onstart = () => {
-      console.log("Speech started");
-    };
-
-    utterance.onend = () => {
-      console.log("Speech ended");
-    };
-
-    utterance.onerror = (event) => {
-      console.error("Speech error:", event);
-    };
-
-    window.speechSynthesis.speak(utterance);
   };
 
   const defaultOptions = {

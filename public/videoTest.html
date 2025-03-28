@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test MP4</title>
+</head>
+<body>
+    <h2>Test MP4 optimisé pour Brave</h2>
+    <video controls width="400" id="testVideo">
+        <source src="/videos/idle_brave.mp4" type="video/mp4" />
+        Vidéo non supportée
+    </video>
+
+    <div id="info"></div>
+
+    <script>
+        const video = document.getElementById('testVideo');
+        const info = document.getElementById('info');
+
+        function log(msg) {
+            info.innerHTML += msg + '<br>';
+            console.log(msg);
+        }
+
+        log('Support MP4: ' + video.canPlayType('video/mp4'));
+
+        video.addEventListener('loadstart', () => log('Chargement démarré'));
+        video.addEventListener('loadeddata', () => log('Données chargées'));
+        video.addEventListener('error', () => log('Erreur: ' + video.error.message));
+    </script>
+</body>
+</html> 

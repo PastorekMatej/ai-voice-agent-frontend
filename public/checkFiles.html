@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vérification des fichiers</title>
+  <script>
+    // Fonction pour vérifier si un fichier existe
+    function checkFileExists(url) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('HEAD', url, true);
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve({
+              url: url,
+              status: xhr.status,
+              statusText: xhr.statusText,
+              contentType: xhr.getResponseHeader('Content-Type'),
+              contentLength: xhr.getResponseHeader('Content-Length')
+            });
+          } else {
+            reject({
+              url: url,
+              status: xhr.status,
+              statusText: xhr.statusText
+            });
+          }
+        };
+        xhr.onerror = function() {
+          reject({
+            url: url,
+            status: 0,
+            statusText: 'Error'
+          });
+        };
+        xhr.send();
+      });
+    }
+
+    // Vérifier tous les fichiers au chargement
+    window.onload = function() {
+      const files = [
+        '/videos/idle.mp4',
+        '/videos/listening.mp4',
+        '/videos/speaking.mp4',
+        '/favicon.ico', // Un fichier qui devrait exister (pour comparaison)
+        'https://www.w3schools.com/html/mov_bbb.mp4' // Un fichier externe (pour comparaison)
+      ];
+
+      const resultsDiv = document.getElementById('results');
+      
+      files.forEach(file => {
+        checkFileExists(file)
+          .then(result => {
+            resultsDiv.innerHTML += `<div style="color: green">✓ ${result.url} - ${result.status} ${result.statusText} - ${result.contentType} (${result.contentLength} bytes)</div>`;
+          })
+          .catch(error => {
+            resultsDiv.innerHTML += `<div style="color: red">✗ ${error.url} - ${error.status} ${error.statusText}</div>`;
+          });
+      });
+    };
+  </script>
+</head>
+<body>
+  <h1>Vérification des fichiers média</h1>
+  <div id="results"></div>
+</body>
+</html> 

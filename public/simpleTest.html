@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Vidéo Simple</title>
+    <style>
+        .video-container { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h2>Tests de vidéo multiples</h2>
+
+    <div class="video-container">
+        <h3>1. Test MP4 local</h3>
+        <video controls width="400">
+            <source src="/videos/idle_brave.mp4" type="video/mp4" />
+            <source src="/videos/idle_brave.mp4" type="video/x-mp4" />
+            MP4 non supporté
+        </video>
+    </div>
+
+    <div class="video-container">
+        <h3>2. Test vidéo de référence (W3Schools)</h3>
+        <video controls width="400">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+            Vidéo de référence non supportée
+        </video>
+    </div>
+
+    <div class="video-container">
+        <h3>3. Information de débogage</h3>
+        <pre id="debug"></pre>
+    </div>
+
+    <script>
+        const videos = document.querySelectorAll('video');
+        const debug = document.getElementById('debug');
+        
+        videos.forEach((video, index) => {
+            video.addEventListener('loadstart', () => log(`Vidéo ${index + 1}: Début du chargement`));
+            video.addEventListener('loadeddata', () => log(`Vidéo ${index + 1}: Données chargées`));
+            video.addEventListener('error', (e) => log(`Vidéo ${index + 1}: Erreur - ${video.error.message}`));
+        });
+
+        function log(message) {
+            debug.textContent += message + '\n';
+            console.log(message);
+        }
+
+        // Test d'accès aux fichiers
+        async function checkFile(url) {
+            try {
+                const response = await fetch(url);
+                log(`Fichier ${url}: ${response.ok ? 'accessible' : 'non accessible'}`);
+            } catch (err) {
+                log(`Erreur accès ${url}: ${err.message}`);
+            }
+        }
+
+        // Vérifier l'accès aux fichiers
+        checkFile('/videos/idle_brave.mp4');
+    </script>
+</body>
+</html> 

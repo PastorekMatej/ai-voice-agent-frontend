@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vérification des vidéos</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+    .video-container { margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    .status { font-weight: bold; margin-top: 10px; }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+    video { max-width: 100%; }
+    .details { background-color: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    h2 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <h1>Vérification de compatibilité des vidéos</h1>
+  
+  <div class="video-container">
+    <h2>idle.mp4</h2>
+    <video id="video1" controls>
+      <source src="/videos/idle.mp4" type="video/mp4">
+      Votre navigateur ne prend pas en charge cette vidéo.
+    </video>
+    <div id="status1" class="status">Chargement...</div>
+    <div id="details1" class="details"></div>
+  </div>
+  
+  <div class="video-container">
+    <h2>listening.mp4</h2>
+    <video id="video2" controls>
+      <source src="/videos/listening.mp4" type="video/mp4">
+      Votre navigateur ne prend pas en charge cette vidéo.
+    </video>
+    <div id="status2" class="status">Chargement...</div>
+    <div id="details2" class="details"></div>
+  </div>
+  
+  <div class="video-container">
+    <h2>speaking.mp4</h2>
+    <video id="video3" controls>
+      <source src="/videos/speaking.mp4" type="video/mp4">
+      Votre navigateur ne prend pas en charge cette vidéo.
+    </video>
+    <div id="status3" class="status">Chargement...</div>
+    <div id="details3" class="details"></div>
+  </div>
+  
+  <h2>Vidéo de référence (format compatible)</h2>
+  <div class="video-container">
+    <video id="reference" controls>
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+      Votre navigateur ne prend pas en charge cette vidéo.
+    </video>
+    <div id="referenceStatus" class="status">Chargement...</div>
+  </div>
+  
+  <script>
+    // Fonction pour vérifier les métadonnées d'une vidéo
+    function checkVideo(videoId, statusId, detailsId) {
+      const video = document.getElementById(videoId);
+      const statusEl = document.getElementById(statusId);
+      const detailsEl = document.getElementById(detailsId);
+      
+      // Événement de chargement réussi
+      video.addEventListener('loadedmetadata', () => {
+        statusEl.className = 'status success';
+        statusEl.textContent = '✓ Vidéo chargée avec succès';
+        
+        // Afficher les détails de la vidéo
+        detailsEl.innerHTML = `
+          <strong>Dimensions:</strong> ${video.videoWidth}x${video.videoHeight} pixels<br>
+          <strong>Durée:</strong> ${video.duration.toFixed(2)} secondes<br>
+          <strong>Type MIME:</strong> ${video.querySelector('source').type}
+        `;
+      });
+      
+      // Événement d'erreur
+      video.addEventListener('error', (e) => {
+        statusEl.className = 'status error';
+        
+        // Analyser le code d'erreur
+        let errorMessage = '';
+        switch(video.error.code) {
+          case 1:
+            errorMessage = 'Processus de récupération interrompu';
+            break;
+          case 2:
+            errorMessage = 'Erreur réseau';
+            break;
+          case 3:
+            errorMessage = 'Décodage échoué (format incompatible ou corrompu)';
+            break;
+          case 4:
+            errorMessage = 'Source non supportée';
+            break;
+          default:
+            errorMessage = 'Erreur inconnue';
+        }
+        
+        statusEl.textContent = `✗ Erreur: ${errorMessage} (code ${video.error.code})`;
+        
+        // Recommandations pour résoudre
+        detailsEl.innerHTML = `
+          <strong>Suggestions:</strong><br>
+          1. Vérifiez que le fichier existe dans le bon dossier<br>
+          2. Le format ou codec peut être incompatible avec ce navigateur<br>
+          3. Essayez de convertir la vidéo avec FFmpeg:<br>
+          <code>ffmpeg -i videos/idle.mp4 -vcodec libx264 -acodec aac -strict -2 videos/idle_web.mp4</code>
+        `;
+      });
+    }
+    
+    // Vérifier chaque vidéo
+    checkVideo('video1', 'status1', 'details1');
+    checkVideo('video2', 'status2', 'details2');
+    checkVideo('video3', 'status3', 'details3');
+    
+    // Vérifier la vidéo de référence
+    const reference = document.getElementById('reference');
+    const refStatus = document.getElementById('referenceStatus');
+    
+    reference.addEventListener('loadedmetadata', () => {
+      refStatus.className = 'status success';
+      refStatus.textContent = '✓ Vidéo de référence chargée (confirme que votre navigateur supporte MP4/H.264)';
+    });
+    
+    reference.addEventListener('error', () => {
+      refStatus.className = 'status error';
+      refStatus.textContent = '✗ Erreur avec la vidéo de référence (problème avec votre navigateur)';
+    });
+  </script>
+</body>
+</html> 

@@ -12,6 +12,24 @@ import SendIcon from '@mui/icons-material/Send';
 import StopIcon from '@mui/icons-material/Stop';
 import { styled } from '@mui/material/styles';
 
+// DOCKER IMPLEMENTATION: Direct configuration with environment variables
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
+
+// DOCKER IMPLEMENTATION: Configuration object
+const appConfig = {
+  apiUrl: API_BASE_URL,
+  environment: process.env.NODE_ENV || "development",
+  features: {
+    enableAnalytics: process.env.REACT_APP_ENABLE_ANALYTICS === "true",
+    enableDebugMode: IS_DEVELOPMENT,
+  },
+  timeouts: {
+    apiRequest: 30000,
+    audioRecording: 60000,
+  }
+};
+
 // Styles personnalisés pour les bulles de chat
 const UserMessage = styled(Paper)(({ theme }) => ({
   padding: '10px 15px',
@@ -92,6 +110,16 @@ const InputContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center'
 }));
 
+// Replace hardcoded API URL with dynamic configuration
+const apiUrl = appConfig.apiUrl;
+
+// DOCKER IMPLEMENTATION: Add environment-based logging
+if (appConfig.features.enableDebugMode) {
+  console.log('DOCKER IMPLEMENTATION: Running in development mode');
+  console.log('DOCKER IMPLEMENTATION: API URL:', apiUrl);
+  console.log('DOCKER IMPLEMENTATION: Environment:', appConfig.environment);
+}
+
 function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcription, setTranscription] = useState('');
@@ -104,7 +132,6 @@ function App() {
   
   const videoRef = useRef(null);
   const chatContainerRef = useRef(null);
-  const apiUrl = "http://localhost:5001";
   const [mediaRecorder, setMediaRecorder] = useState(null);
 
   // Charger les messages du localStorage
@@ -251,7 +278,7 @@ function App() {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
-            timeout: 30000 // 30 secondes
+            timeout: 60000 // 60 secondes au lieu de 30
           });
           
           console.log("Transcription response received:", response.status);

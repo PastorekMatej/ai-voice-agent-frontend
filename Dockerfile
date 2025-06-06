@@ -9,8 +9,8 @@ WORKDIR /app
 # DOCKER IMPLEMENTATION: Copy package files first for better Docker layer caching
 COPY package*.json ./
 
-# DOCKER IMPLEMENTATION: Install dependencies in container
-RUN npm ci --only=production
+# DOCKER IMPLEMENTATION: Install ALL dependencies (including devDependencies for build)
+RUN npm install
 
 # DOCKER IMPLEMENTATION: Copy source code to container
 COPY . .
@@ -19,13 +19,29 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM nginx:1.21-alpine
 
 # DOCKER IMPLEMENTATION: Copy built React app to nginx
 COPY --from=build /app/build /usr/share/nginx/html
 
-# DOCKER IMPLEMENTATION: Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# DOCKER IMPLEMENTATION: Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# DOCKER IMPLEMENTATION: Add our nginx config
+COPY <<EOF /etc/nginx/conf.d/default.conf
+server {
+    listen 80;
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files \$uri \$uri/ /index.html;
+    }
+    location /health {
+        return 200 "healthy";
+        add_header Content-Type text/plain;
+    }
+}
+EOF
 
 # DOCKER IMPLEMENTATION: Expose port 80 for web server
 EXPOSE 80

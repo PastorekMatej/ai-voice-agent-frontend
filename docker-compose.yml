@@ -1,0 +1,35 @@
+# DOCKER IMPLEMENTATION: Docker Compose for local development environment
+
+version: '3.8'
+
+services:
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://backend:5001
+    depends_on:
+      - backend
+    networks:
+      - ai-voice-network
+
+  backend:
+    build: 
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+    volumes:
+      - ../backend/ai-voice-agent-451616-5ab9c7176a3d.json:/app/credentials.json:ro
+    networks:
+      - ai-voice-network
+
+networks:
+  ai-voice-network:
+    driver: bridge 

@@ -25,7 +25,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "docker:build": "docker build -t ai-voice-frontend .",
+    "docker:run": "docker run -p 3000:80 ai-voice-frontend",
+    "docker:dev": "docker-compose up --build",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build"
   },
   "eslintConfig": {
     "extends": [
@@ -57,7 +61,6 @@
   "bugs": {
     "url": "https://github.com/PastorekMatej/ai-voice-agent-frontend/issues"
   },
-  "homepage": "http://localhost:3000/PastorekMatej/ai-voice-agent-fronten",
   "presets": [
     "@babel/preset-env",
     "@babel/preset-react"

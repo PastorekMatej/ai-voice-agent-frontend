@@ -1,0 +1,21 @@
+# DOCKER IMPLEMENTATION: Production Docker Compose configuration
+
+version: '3.8'
+
+services:
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - REACT_APP_API_URL=https://your-backend-api.cloudrun.app
+      - REACT_APP_ENABLE_ANALYTICS=true
+    restart: unless-stopped
+    networks:
+      - ai-voice-network
+
+networks:
+  ai-voice-network:
+    driver: bridge 

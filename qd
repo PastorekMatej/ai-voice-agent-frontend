@@ -1,0 +1,71 @@
+* [33mcommit fb90639b55c46d0e969309c20f6c2520c31e481a[m[33m ([m[1;33mtag: [m[1;33mv0.3.0[m[33m, [m[1;31morigin/develop[m[33m, [m[1;32mfeature/google-cloud-deployment[m[33m, [m[1;32mdevelop[m[33m)[m
+[31m|[m Author: PastorekMatej <matejpastorek22@gmail.com>
+[31m|[m Date:   Mon Jun 9 14:16:42 2025 +0200
+[31m|[m 
+[31m|[m     feat,doc,test: modification of DOckerfile for Google Cloud Deployment
+[31m|[m 
+* [33mcommit b411929061d43bef37afa8d8e51002e1e72dd238[m[33m ([m[1;36mHEAD[m[33m, [m[1;33mtag: [m[1;33mv0.2.0[m[33m, [m[1;32mfeature/docker-frontend-setup[m[33m)[m
+[31m|[m Author: PastorekMatej <matejpastorek22@gmail.com>
+[31m|[m Date:   Fri Jun 6 21:20:35 2025 +0200
+[31m|[m 
+[31m|[m     test,feat,doc: Docker adaptations, OK test, and update of README documentation
+[31m|[m 
+* [33mcommit 95cec1be1796a45d9ff1a43597f9900e1bc45762[m
+[31m|[m Author: PastorekMatej <matejpastorek22@gmail.com>
+[31m|[m Date:   Fri Jun 6 18:38:27 2025 +0200
+[31m|[m 
+[31m|[m     feat: Docker implementation in env app and config files for frontend
+[31m|[m 
+* [33mcommit ebfac2ff6201fc7013a3e3e6f9965e6ea1dfa157[m
+[31m|[m Author: PastorekMatej <matejpastorek22@gmail.com>
+[31m|[m Date:   Fri Jun 6 18:02:58 2025 +0200
+[31m|[m 
+[31m|[m     feat:Docker infrastructure files for frontend
+[31m|[m 
+* [33mcommit 70aaa920fed0e56557940eb36ecaf19b50ddccdf[m
+[31m|[m Author: Matej_Pastorek <matejpastorek22@gmail.com>
+[31m|[m Date:   Fri Mar 28 16:03:25 2025 +0700
+[31m|[m 
+[31m|[m     Initial commit for benchmarking
+[31m|[m 
+* [33mcommit 2ce2c70f6de29bffe4c83e293f96f8d50948dd14[m
+[31m|[m Author: Matej_Pastorek <matejpastorek22@gmail.com>
+[31m|[m Date:   Fri Feb 28 17:34:42 2025 +0700
+[31m|[m 
+[31m|[m     version avec voix française OK
+[31m|[m 
+* [33mcommit d95c04e61fa19770c0c24c51a4144f301987ed5e[m
+[31m|[m Author: Matej_Pastorek <matejpastorek22@gmail.com>
+[31m|[m Date:   Tue Feb 25 20:56:51 2025 +0700
+[31m|[m 
+[31m|[m     Implementation francais v1
+[31m|[m 
+* [33mcommit 1d5900629b26d22b48d6f133a936a9afaaaf51ad[m
+[31m|[m Author: Matej_Pastorek <matejpastorek22@gmail.com>
+[31m|[m Date:   Tue Feb 25 19:56:55 2025 +0700
+[31m|[m 
+[31m|[m     New image feature
+[31m|[m 
+* [33mcommit 89ff11c35027aff61e619cd98552f2efec499160[m
+[31m|[m Author: Matej_Pastorek <matejpastorek22@gmail.com>
+[31m|[m Date:   Mon Feb 24 22:44:28 2025 +0700
+[31m|[m 
+[31m|[m     button version 2
+[31m|[m 
+* [33mcommit 11b911667201c92136cd35f3d60fa945f8af43ff[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m, [m[1;33mtag: [m[1;33mv1.0.0[m[33m, [m[1;33mtag: [m[1;33mv0.1.0[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+[31m|[m Author: Matej_Pastorek <matejpastorek22@gmail.com>
+[31m|[m Date:   Sun Feb 23 22:50:34 2025 +0700
+[31m|[m 
+[31m|[m     Stabilize version v1.0.0
+[31m|[m 
+* [33mcommit 52a5509252c517ee5c86da1c3cde76e28c49ec8d[m
+[31m|[m Author: Matej_Pastorek <matejpastorek22@gmail.com>
+[31m|[m Date:   Mon Feb 17 18:41:16 2025 +0700
+[31m|[m 
+[31m|[m     Initial frontend commit
+[31m|[m 
+* [33mcommit f6251f6bb2d1bbc138bbe2f481dd03b4fcdc1648[m
+  Author: Matej_Pastorek <matejpastorek22@gmail.com>
+  Date:   Sat Feb 15 22:00:29 2025 +0700
+  
+      Initialize project using Create React App

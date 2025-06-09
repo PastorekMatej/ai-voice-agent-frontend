@@ -18,6 +18,10 @@
 .env.test.local
 .env.production.local
 
+# ElevenLabs specific
+/src/config/elevenlabs.local.js
+.env
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

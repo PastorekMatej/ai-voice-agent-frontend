@@ -7,6 +7,10 @@ const elevenLabsConfig = {
   apiKey: process.env.REACT_APP_ELEVENLABS_API_KEY,
   agentId: process.env.REACT_APP_ELEVENLABS_AGENT_ID,
   
+  // API URLs
+  apiUrl: 'https://api.elevenlabs.io',
+  websocketUrl: 'wss://api.elevenlabs.io/v1/convai/conversation',
+  
   // Voice Settings
   voiceSettings: {
     voiceId: process.env.REACT_APP_ELEVENLABS_VOICE_ID || '',

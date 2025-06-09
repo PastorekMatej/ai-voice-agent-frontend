@@ -43,10 +43,12 @@ const TranscriptPreview = styled(Paper)(({ theme }) => ({
   border: '2px dashed #2196f3'
 }));
 
-const ConversationDisplay = ({ 
-  conversation = [], 
-  isRecording = false, 
-  currentTranscript = '' 
+const ConversationDisplay = ({
+  conversation = [],
+  isRecording = false,
+  currentTranscript = '',
+  agentMode = 'listening',
+  conversationId = null
 }) => {
   const messagesEndRef = useRef(null);
 
@@ -79,10 +81,11 @@ const ConversationDisplay = ({
       {/* Header */}
       <Box sx={{ p: 2, backgroundColor: 'primary.main', color: 'white' }}>
         <Typography variant="h6">
-          Conversation
+          Conversation {agentMode === 'speaking' && '🔊'}
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.9 }}>
           {conversation.length === 0 ? 'No messages yet' : `${conversation.length} messages`}
+          {conversationId && ` • ID: ${conversationId.slice(0, 8)}...`}
         </Typography>
       </Box>
 

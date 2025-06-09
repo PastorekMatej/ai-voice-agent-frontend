@@ -18,13 +18,16 @@ const ElevenLabsVoiceAgent = () => {
   const {
     isConnected,
     isRecording,
+    conversationId,
     transcript,
     response,
+    agentMode,
+    error: conversationError,
     connect,
     disconnect,
     startRecording,
     stopRecording,
-    error: conversationError
+    sendContextualUpdate
   } = useElevenLabsConversation();
 
   // Validate configuration on mount
@@ -117,6 +120,7 @@ const ElevenLabsVoiceAgent = () => {
         <VoiceControls
           isConnected={isConnected}
           isRecording={isRecording}
+          agentMode={agentMode}
           onConnect={handleConnect}
           onDisconnect={handleDisconnect}
           onStartRecording={handleStartRecording}
@@ -128,6 +132,8 @@ const ElevenLabsVoiceAgent = () => {
           conversation={conversation}
           isRecording={isRecording}
           currentTranscript={transcript}
+          agentMode={agentMode}
+          conversationId={conversationId}
         />
       </Box>
     </Container>

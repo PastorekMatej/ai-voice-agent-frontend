@@ -14,6 +14,7 @@ import StatusIndicator from './StatusIndicator';
 const VoiceControls = ({
   isConnected = false,
   isRecording = false,
+  agentMode = 'listening',
   onConnect,
   onDisconnect,
   onStartRecording,
@@ -35,10 +36,12 @@ const VoiceControls = ({
         <StatusIndicator 
           isConnected={isConnected}
           isRecording={isRecording}
+          agentMode={agentMode}
         />
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           {!isConnected && 'Disconnected from ElevenLabs'}
-          {isConnected && !isRecording && 'Connected - Ready to talk'}
+          {isConnected && !isRecording && agentMode === 'listening' && 'Connected - Ready to talk'}
+          {isConnected && !isRecording && agentMode === 'speaking' && 'Agent is speaking...'}
           {isConnected && isRecording && 'Recording...'}
         </Typography>
       </Box>

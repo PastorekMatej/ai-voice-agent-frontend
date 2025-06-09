@@ -8,15 +8,21 @@ import {
   RadioButtonChecked as RecordingIcon 
 } from '@mui/icons-material';
 
-const StatusIndicator = ({ isConnected = false, isRecording = false }) => {
+const StatusIndicator = ({ 
+  isConnected = false, 
+  isRecording = false, 
+  agentMode = 'listening' 
+}) => {
   const getStatusColor = () => {
     if (isRecording) return 'error.main';
+    if (isConnected && agentMode === 'speaking') return 'info.main';
     if (isConnected) return 'success.main';
     return 'grey.400';
   };
 
   const getStatusText = () => {
     if (isRecording) return 'Recording';
+    if (isConnected && agentMode === 'speaking') return 'Agent Speaking';
     if (isConnected) return 'Connected';
     return 'Disconnected';
   };

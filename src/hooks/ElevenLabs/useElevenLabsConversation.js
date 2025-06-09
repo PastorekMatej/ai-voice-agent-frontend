@@ -1,5 +1,5 @@
 // useElevenLabsConversation.js
-// Main hook for managing ElevenLabs conversation state and WebSocket connection
+// ElevenLabs Conversational AI hook using WebSocket protocol
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import elevenLabsConfig from '../../config/elevenlabs';
@@ -14,11 +14,14 @@ const useElevenLabsConversation = () => {
   // Conversation state
   const [transcript, setTranscript] = useState('');
   const [response, setResponse] = useState('');
+  const [agentMode, setAgentMode] = useState('listening'); // 'listening' or 'speaking'
 
   // WebSocket and audio references
   const wsRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const workletNodeRef = useRef(null);
 
   // Connect to ElevenLabs WebSocket
   const connect = useCallback(async () => {
@@ -27,21 +30,31 @@ const useElevenLabsConversation = () => {
       
       // Validate configuration
       if (!elevenLabsConfig.apiKey || !elevenLabsConfig.agentId) {
-        throw new Error('Missing ElevenLabs API key or Agent ID');
+        throw new Error('Missing ElevenLabs API key or Agent ID. Please check your environment variables.');
       }
 
+      // Create WebSocket URL
+      const wsUrl = `${elevenLabsConfig.websocketUrl}?agent_id=${elevenLabsConfig.agentId}`;
+      console.log('Connecting to:', wsUrl);
+
       // Create WebSocket connection
-      const wsUrl = `${elevenLabsConfig.websocket.url}/${elevenLabsConfig.agentId}`;
-      const ws = new WebSocket(wsUrl, [], {
-        headers: {
-          'Authorization': `Bearer ${elevenLabsConfig.apiKey}`,
-        }
-      });
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('Connected to ElevenLabs');
+        console.log('✅ Connected to ElevenLabs');
         setIsConnected(true);
         setError(null);
+        
+        // Send conversation initiation
+        ws.send(JSON.stringify({
+          type: 'conversation_initiation_client_data',
+          conversation_config_override: {
+            agent: {
+              language: elevenLabsConfig.language
+            }
+          }
+        }));
       };
 
       ws.onmessage = (event) => {
@@ -49,126 +62,165 @@ const useElevenLabsConversation = () => {
           const data = JSON.parse(event.data);
           handleWebSocketMessage(data);
         } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
+          console.error('❌ Error parsing WebSocket message:', err, event.data);
         }
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setError('Connection error occurred');
+        console.error('❌ WebSocket error:', error);
+        setError('Connection error occurred. Please check your internet connection and try again.');
       };
 
-      ws.onclose = () => {
-        console.log('Disconnected from ElevenLabs');
+      ws.onclose = (event) => {
+        console.log('🔌 Disconnected from ElevenLabs', event.code, event.reason);
         setIsConnected(false);
         setIsRecording(false);
+        setAgentMode('listening');
+        
+        // Cleanup audio resources
+        cleanupAudioResources();
       };
-
-      wsRef.current = ws;
       
     } catch (err) {
-      console.error('Failed to connect:', err);
+      console.error('❌ Failed to connect:', err);
       setError(err.message);
     }
   }, []);
 
-  // Handle WebSocket messages
+  // Handle WebSocket messages according to ElevenLabs protocol
   const handleWebSocketMessage = useCallback((data) => {
+    console.log('📨 WebSocket message:', data.type, data);
+    
     switch (data.type) {
       case 'conversation_initiation_metadata':
-        setConversationId(data.conversation_id);
+        setConversationId(data.conversation_initiation_metadata_event?.conversation_id);
+        console.log('💬 Conversation started:', data.conversation_initiation_metadata_event?.conversation_id);
         break;
+        
       case 'user_transcript':
-        setTranscript(data.transcript || '');
+        const userTranscript = data.user_transcription_event?.user_transcript || '';
+        setTranscript(userTranscript);
+        console.log('🎤 User transcript:', userTranscript);
         break;
+        
       case 'agent_response':
-        setResponse(data.response || '');
+        const agentResponse = data.agent_response_event?.agent_response || '';
+        setResponse(agentResponse);
+        setAgentMode('speaking');
+        console.log('🤖 Agent response:', agentResponse);
         break;
+        
       case 'audio':
-        // Handle audio playback
-        handleAudioPlayback(data.audio_data);
+        const audioData = data.audio_event?.audio_base_64;
+        if (audioData) {
+          playAudioChunk(audioData);
+        }
         break;
+        
+      case 'ping':
+        // Respond to ping to keep connection alive
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(JSON.stringify({
+            type: 'pong',
+            event_id: data.ping_event?.event_id
+          }));
+        }
+        break;
+        
+      case 'interruption':
+        console.log('⚠️ Conversation interrupted:', data.interruption_event?.reason);
+        setAgentMode('listening');
+        break;
+        
       case 'error':
-        setError(data.message || 'Unknown error occurred');
+        console.error('❌ Server error:', data);
+        setError('Server error occurred. Please try again.');
         break;
+        
       default:
-        console.log('Unknown message type:', data.type);
+        console.log('❓ Unknown message type:', data.type, data);
     }
   }, []);
 
-  // Handle audio playback
-  const handleAudioPlayback = useCallback((audioData) => {
+  // Play audio chunk received from server
+  const playAudioChunk = useCallback(async (audioBase64) => {
     try {
-      // Convert base64 audio to playable format
-      const audioBuffer = atob(audioData);
-      const bytes = new Uint8Array(audioBuffer.length);
-      for (let i = 0; i < audioBuffer.length; i++) {
-        bytes[i] = audioBuffer.charCodeAt(i);
+      // Convert base64 to audio buffer
+      const audioData = atob(audioBase64);
+      const audioBytes = new Uint8Array(audioData.length);
+      for (let i = 0; i < audioData.length; i++) {
+        audioBytes[i] = audioData.charCodeAt(i);
       }
       
-      const audioBlob = new Blob([bytes], { type: 'audio/wav' });
+      // Create audio blob and play
+      const audioBlob = new Blob([audioBytes], { type: 'audio/wav' });
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       
-      audio.play().catch(err => {
-        console.error('Error playing audio:', err);
-      });
-      
-      // Clean up URL after playback
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
+        setAgentMode('listening');
       };
+      
+      await audio.play();
+      
     } catch (err) {
-      console.error('Error handling audio playback:', err);
+      console.error('❌ Error playing audio:', err);
+      setAgentMode('listening');
     }
   }, []);
 
-  // Start recording
+  // Start recording user audio
   const startRecording = useCallback(async () => {
     try {
       if (!isConnected || !wsRef.current) {
-        throw new Error('Not connected to ElevenLabs');
+        throw new Error('Not connected to ElevenLabs. Please connect first.');
       }
 
-      // Get user media
+      // Get user media with optimized settings for ElevenLabs
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: elevenLabsConfig.audio.sampleRate,
-          channelCount: elevenLabsConfig.audio.channels,
-          echoCancellation: elevenLabsConfig.audio.enableEchoCancellation,
-          noiseSuppression: elevenLabsConfig.audio.enableNoiseSuppression,
+          sampleRate: 16000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
         }
       });
 
       audioStreamRef.current = stream;
 
-      // Create MediaRecorder for audio streaming
+      // Create MediaRecorder for streaming audio
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: 16000
       });
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0 && wsRef.current?.readyState === WebSocket.OPEN) {
-          // Convert audio data to base64 and send
+          // Convert to base64 and send to ElevenLabs
           const reader = new FileReader();
           reader.onload = () => {
             const audioData = reader.result.split(',')[1]; // Remove data URL prefix
             wsRef.current.send(JSON.stringify({
-              type: 'audio_data',
-              audio_data: audioData
+              user_audio_chunk: audioData
             }));
           };
           reader.readAsDataURL(event.data);
         }
       };
 
-      mediaRecorder.start(100); // Send chunks every 100ms
+      // Send audio chunks every 100ms for low latency
+      mediaRecorder.start(100);
       mediaRecorderRef.current = mediaRecorder;
+      
       setIsRecording(true);
       setError(null);
+      setTranscript(''); // Clear previous transcript
+      console.log('🎤 Started recording');
 
     } catch (err) {
-      console.error('Failed to start recording:', err);
+      console.error('❌ Failed to start recording:', err);
       setError('Failed to start recording: ' + err.message);
     }
   }, [isConnected]);
@@ -176,23 +228,44 @@ const useElevenLabsConversation = () => {
   // Stop recording
   const stopRecording = useCallback(() => {
     try {
-      if (mediaRecorderRef.current) {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop();
-        mediaRecorderRef.current = null;
       }
-
-      if (audioStreamRef.current) {
-        audioStreamRef.current.getTracks().forEach(track => track.stop());
-        audioStreamRef.current = null;
-      }
-
+      
+      cleanupAudioResources();
       setIsRecording(false);
+      console.log('🛑 Stopped recording');
+      
     } catch (err) {
-      console.error('Error stopping recording:', err);
+      console.error('❌ Error stopping recording:', err);
     }
   }, []);
 
-  // Disconnect
+  // Cleanup audio resources
+  const cleanupAudioResources = useCallback(() => {
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach(track => {
+        track.stop();
+      });
+      audioStreamRef.current = null;
+    }
+    
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current = null;
+    }
+    
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    
+    if (workletNodeRef.current) {
+      workletNodeRef.current.disconnect();
+      workletNodeRef.current = null;
+    }
+  }, []);
+
+  // Disconnect from ElevenLabs
   const disconnect = useCallback(() => {
     try {
       // Stop recording if active
@@ -202,7 +275,7 @@ const useElevenLabsConversation = () => {
 
       // Close WebSocket
       if (wsRef.current) {
-        wsRef.current.close();
+        wsRef.current.close(1000, 'User disconnected');
         wsRef.current = null;
       }
 
@@ -212,11 +285,25 @@ const useElevenLabsConversation = () => {
       setTranscript('');
       setResponse('');
       setError(null);
+      setAgentMode('listening');
+      
+      console.log('👋 Disconnected from ElevenLabs');
 
     } catch (err) {
-      console.error('Error during disconnect:', err);
+      console.error('❌ Error during disconnect:', err);
     }
   }, [isRecording, stopRecording]);
+
+  // Send contextual update (optional feature)
+  const sendContextualUpdate = useCallback((text) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'contextual_update',
+        text: text
+      }));
+      console.log('📝 Sent contextual update:', text);
+    }
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -226,16 +313,23 @@ const useElevenLabsConversation = () => {
   }, [disconnect]);
 
   return {
+    // Connection state
     isConnected,
     isRecording,
     conversationId,
+    error,
+    agentMode,
+    
+    // Conversation data
     transcript,
     response,
-    error,
+    
+    // Actions
     connect,
     disconnect,
     startRecording,
-    stopRecording
+    stopRecording,
+    sendContextualUpdate
   };
 };
 

@@ -4,12 +4,15 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
   Button, Container, Typography, Box, TextField, IconButton, 
-  Paper, Avatar, AppBar, Toolbar
+  Paper, Avatar, AppBar, Toolbar, Tab, Tabs
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
 import StopIcon from '@mui/icons-material/Stop';
 import { styled } from '@mui/material/styles';
+
+// Import ElevenLabs components
+import { ElevenLabsVoiceAgent } from './components/ElevenLabs';
 
 // DOCKER IMPLEMENTATION: Direct configuration with environment variables
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
@@ -126,6 +129,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [translations, setTranslations] = useState({});
   const [inputText, setInputText] = useState('');
+  const [currentTab, setCurrentTab] = useState(1); // 0 = Legacy, 1 = ElevenLabs
   
   const videoRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -516,47 +520,66 @@ function App() {
             src="/avatar.png" 
             sx={{ width: 40, height: 40, marginRight: 2 }} 
           />
-          <Box>
+          <Box sx={{ flexGrow: 1 }}>
             <Typography variant="h6">AI Voice Agent</Typography>
             <Typography variant="caption" sx={{ opacity: 0.8 }}>
-              {status === 'recording' ? 'Enregistrement...' : 
-               status === 'processing' ? 'Traitement...' : 
-               status === 'speaking' ? 'En train de parler...' : 'En ligne'}
-      </Typography>
+              {currentTab === 0 ? 
+                (status === 'recording' ? 'Enregistrement...' : 
+                 status === 'processing' ? 'Traitement...' : 
+                 status === 'speaking' ? 'En train de parler...' : 'En ligne') :
+                'ElevenLabs Conversational AI'
+              }
+            </Typography>
           </Box>
         </Toolbar>
+        
+        {/* Tabs for switching between implementations */}
+        <Tabs
+          value={currentTab}
+          onChange={(e, newValue) => setCurrentTab(newValue)}
+          textColor="inherit"
+          indicatorColor="secondary"
+          sx={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+        >
+          <Tab label="Legacy Backend" />
+          <Tab label="ElevenLabs" />
+        </Tabs>
       </AppBar>
 
-      {/* Zone de vidéo */}
-      <Box 
-        sx={{
-          width: '100%',
-          height: 300,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          my: 2,
-          borderRadius: '8px',
-          overflow: 'hidden',
-          backgroundColor: '#f0f0f0'
-        }}
-      >
-        <video
-          ref={videoRef}
-          muted
-          loop
-          playsInline
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: '8px'
-          }}
-        />
-      </Box>
+      {/* Conditional Content based on Tab */}
+      {currentTab === 0 ? (
+        // Legacy Implementation
+        <>
+          {/* Zone de vidéo */}
+          <Box 
+            sx={{
+              width: '100%',
+              height: 300,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              my: 2,
+              borderRadius: '8px',
+              overflow: 'hidden',
+              backgroundColor: '#f0f0f0'
+            }}
+          >
+            <video
+              ref={videoRef}
+              muted
+              loop
+              playsInline
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '8px'
+              }}
+            />
+          </Box>
 
-      {/* Zone de chat unique avec messages français et slovaques */}
-      <ChatContainer ref={chatContainerRef}>
+          {/* Zone de chat unique avec messages français et slovaques */}
+          <ChatContainer ref={chatContainerRef}>
         {messages.map((msg, index) => (
           <React.Fragment key={msg.id}>
             {shouldShowDateDivider(index, messages) && (
@@ -680,6 +703,13 @@ function App() {
           Tester la connexion au serveur
         </Button>
       </Box>
+        </>
+      ) : (
+        // ElevenLabs Implementation
+        <Box sx={{ my: 2, flexGrow: 1 }}>
+          <ElevenLabsVoiceAgent />
+        </Box>
+      )}
     </Container>
   );
 }

@@ -1,0 +1,36 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/ai-voice-agent/frontend:$COMMIT_SHA'
+      - '--build-arg'
+      - 'REACT_APP_API_URL=https://ai-voice-backend-446760904661.us-central1.run.app'
+      - '.'
+  
+  # Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/ai-voice-agent/frontend:$COMMIT_SHA']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ai-voice-frontend'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/ai-voice-agent/frontend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=80'
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--max-instances=10'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/ai-voice-agent/frontend:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY 

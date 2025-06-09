@@ -10,7 +10,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - REACT_APP_API_URL=https://your-backend-api.cloudrun.app
+      - REACT_APP_API_URL=https://your-backend-service-url  # This will be updated after backend deployment
       - REACT_APP_ENABLE_ANALYTICS=true
     restart: unless-stopped
     networks:

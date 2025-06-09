@@ -1,11 +1,10 @@
 // frontend/src/App.js
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import MicRecorder from 'mic-recorder-to-mp3';
 import axios from 'axios';
 import { 
   Button, Container, Typography, Box, TextField, IconButton, 
-  Paper, Divider, Avatar, AppBar, Toolbar
+  Paper, Avatar, AppBar, Toolbar
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
@@ -122,8 +121,6 @@ if (appConfig.features.enableDebugMode) {
 
 function App() {
   const [isRecording, setIsRecording] = useState(false);
-  const [transcription, setTranscription] = useState('');
-  const [aiResponse, setAiResponse] = useState('');
   const [status, setStatus] = useState('idle');
   const [videoState, setVideoState] = useState('idle');
   const [messages, setMessages] = useState([]);
@@ -218,7 +215,6 @@ function App() {
       console.log("AI response received:", aiResponse);
       const responseText = aiResponse.data.response;
       console.log("Response text:", responseText);
-      setAiResponse(responseText);
       
       // Ajouter la réponse de l'AI
       await addMessage(responseText, 'ai');
@@ -286,7 +282,6 @@ function App() {
           
           const transcribedText = response.data.transcription;
           console.log("Transcribed text:", transcribedText);
-          setTranscription(transcribedText);
           
           // Traiter la réponse de l'AI
           if (transcribedText && transcribedText.trim()) {

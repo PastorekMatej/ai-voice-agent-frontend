@@ -6,6 +6,10 @@ FROM node:18-alpine as build
 # DOCKER IMPLEMENTATION: Set working directory inside container
 WORKDIR /app
 
+# DOCKER IMPLEMENTATION: Accept build arguments
+ARG REACT_APP_API_URL=https://ai-voice-backend-446760904661.us-central1.run.app
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 # DOCKER IMPLEMENTATION: Copy package files first for better Docker layer caching
 COPY package*.json ./
 

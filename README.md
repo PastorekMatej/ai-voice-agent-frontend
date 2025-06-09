@@ -39,12 +39,6 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-
-
-
-
-
-
 ## 🐳 Docker Implementation
 
 This frontend is fully containerized using Docker with production-ready optimizations. The implementation uses a multi-stage build process for optimal performance and security.
@@ -238,32 +232,333 @@ docker-compose up --build
 docker-compose up --scale frontend=2
 ```
 
-### 🚀 Cloud Deployment
+## ☁️ Google Cloud Deployment
 
-#### Google Cloud Run
+This section covers the complete deployment process for Google Cloud Platform using Cloud Run, Artifact Registry, and Cloud Build.
+
+### 🏗️ Google Cloud Configuration & Files
+
+#### Required Files for Google Cloud Adaptation
+
+The following files have been configured for Google Cloud deployment:
+
+1. **`Dockerfile`** - Multi-stage build with Cloud Run optimizations
+   - Accepts `REACT_APP_API_URL` build argument for backend connectivity
+   - Configures Nginx for Cloud Run's container port requirements
+   - Includes health checks for Cloud Run service monitoring
+
+2. **`cloudbuild.yaml`** - Cloud Build configuration for automated CI/CD
+   - Builds Docker image with proper environment variables
+   - Pushes to Google Artifact Registry
+   - Deploys to Cloud Run with appropriate settings
+
+3. **`nginx.conf`** - Production-ready Nginx configuration
+   - Optimized for Cloud Run environment
+   - Includes health endpoint at `/health`
+   - Configured for React SPA routing
+
+4. **`.dockerignore`** - Optimizes build context for Cloud Build
+   - Excludes unnecessary files to speed up builds
+   - Reduces image size and build time
+
+#### Environment Variables Configuration
+
 ```bash
-# Build and tag for GCR
-docker build -t gcr.io/PROJECT_ID/ai-voice-frontend:latest .
-
-# Push to Google Container Registry
-docker push gcr.io/PROJECT_ID/ai-voice-frontend:latest
-
-# Deploy to Cloud Run
-gcloud run deploy ai-voice-frontend \
-  --image gcr.io/PROJECT_ID/ai-voice-frontend:latest \
-  --platform managed \
-  --region europe-west1 \
-  --allow-unauthenticated \
-  --set-env-vars REACT_APP_API_URL=https://backend-url
+# Required for Google Cloud deployment
+REACT_APP_API_URL=https://ai-voice-backend-446760904661.us-central1.run.app
+REACT_APP_ENABLE_ANALYTICS=true
+GENERATE_SOURCEMAP=false
 ```
 
-#### AWS ECS / Azure Container Instances
+### 🛠️ Prerequisites
+
+Before deploying to Google Cloud, ensure you have:
+
+```bash
+# 1. Google Cloud CLI installed and authenticated
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+
+# 2. Enable required APIs
+gcloud services enable artifactregistry.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable cloudbuild.googleapis.com
+
+# 3. Create Artifact Registry repository
+gcloud artifacts repositories create ai-voice-agent \
+    --repository-format=docker \
+    --location=us-central1 \
+    --description="AI Voice Agent containers"
+
+# 4. Configure Docker authentication
+gcloud auth configure-docker us-central1-docker.pkg.dev
+```
+
+### 🚀 Key Google Cloud Deployment Commands
+
+#### Method 1: Manual Docker Build & Deploy
+
+```bash
+# 1. Build with correct backend URL
+docker build \
+    --build-arg REACT_APP_API_URL=https://ai-voice-backend-446760904661.us-central1.run.app \
+    -t us-central1-docker.pkg.dev/YOUR_PROJECT_ID/ai-voice-agent/frontend:latest .
+
+# 2. Push to Artifact Registry
+docker push us-central1-docker.pkg.dev/YOUR_PROJECT_ID/ai-voice-agent/frontend:latest
+
+# 3. Deploy to Cloud Run
+gcloud run deploy ai-voice-frontend \
+    --image us-central1-docker.pkg.dev/YOUR_PROJECT_ID/ai-voice-agent/frontend:latest \
+    --platform managed \
+    --region us-central1 \
+    --allow-unauthenticated \
+    --port 80 \
+    --memory 512Mi \
+    --cpu 1 \
+    --max-instances 10 \
+    --min-instances 0
+```
+
+#### Method 2: Cloud Build (Recommended)
+
+```bash
+# Deploy using Cloud Build configuration
+gcloud builds submit --config cloudbuild.yaml .
+
+# Or with specific substitutions
+gcloud builds submit \
+    --config cloudbuild.yaml \
+    --substitutions=_BACKEND_URL=https://ai-voice-backend-446760904661.us-central1.run.app \
+    .
+```
+
+#### Method 3: Continuous Deployment
+
+```bash
+# Connect repository for automated builds
+gcloud builds triggers create github \
+    --repo-name=ai-voice-agent-frontend \
+    --repo-owner=YOUR_GITHUB_USERNAME \
+    --branch-pattern="^main$" \
+    --build-config=cloudbuild.yaml
+```
+
+### 🔧 Advanced Cloud Run Configuration
+
+#### Update Service Configuration
+```bash
+# Update environment variables
+gcloud run services update ai-voice-frontend \
+    --region us-central1 \
+    --set-env-vars REACT_APP_API_URL=https://new-backend-url
+
+# Update scaling settings
+gcloud run services update ai-voice-frontend \
+    --region us-central1 \
+    --min-instances 1 \
+    --max-instances 100 \
+    --concurrency 80
+
+# Update resource allocation
+gcloud run services update ai-voice-frontend \
+    --region us-central1 \
+    --memory 1Gi \
+    --cpu 1
+```
+
+#### Custom Domain Configuration
+```bash
+# Map custom domain
+gcloud run domain-mappings create \
+    --service ai-voice-frontend \
+    --domain your-domain.com \
+    --region us-central1
+
+# Verify domain mapping
+gcloud run domain-mappings list --region us-central1
+```
+
+### 📊 Monitoring & Management Commands
+
+#### Service Management
+```bash
+# Get service details
+gcloud run services describe ai-voice-frontend --region us-central1
+
+# List all services
+gcloud run services list
+
+# Get service URL
+gcloud run services describe ai-voice-frontend \
+    --region us-central1 \
+    --format="value(status.url)"
+```
+
+#### Logs & Debugging
+```bash
+# View service logs
+gcloud run services logs read ai-voice-frontend --region us-central1
+
+# Follow logs in real-time
+gcloud run services logs tail ai-voice-frontend --region us-central1
+
+# View Cloud Build logs
+gcloud builds list --limit=10
+gcloud builds log BUILD_ID
+```
+
+#### Traffic Management
+```bash
+# Split traffic between revisions
+gcloud run services update-traffic ai-voice-frontend \
+    --to-revisions ai-voice-frontend-00001=50,ai-voice-frontend-00002=50 \
+    --region us-central1
+
+# Route all traffic to latest revision
+gcloud run services update-traffic ai-voice-frontend \
+    --to-latest \
+    --region us-central1
+```
+
+### 🔐 Security & IAM Configuration
+
+#### Service Account Setup
+```bash
+# Create service account for Cloud Run
+gcloud iam service-accounts create ai-voice-frontend-sa \
+    --display-name="AI Voice Frontend Service Account"
+
+# Grant necessary permissions
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+    --member="serviceAccount:ai-voice-frontend-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/storage.objectViewer"
+```
+
+#### Network Security
+```bash
+# Restrict ingress to authenticated users only
+gcloud run services update ai-voice-frontend \
+    --region us-central1 \
+    --ingress internal-and-cloud-load-balancing
+
+# Configure VPC connector (if needed)
+gcloud run services update ai-voice-frontend \
+    --region us-central1 \
+    --vpc-connector YOUR_VPC_CONNECTOR
+```
+
+### 🚨 Troubleshooting Google Cloud Deployment
+
+#### Common Issues & Solutions
+
+**Build failures:**
+```bash
+# Check Cloud Build logs
+gcloud builds list --limit=5
+gcloud builds log BUILD_ID
+
+# Test build locally
+docker build -t test-build .
+```
+
+**Service won't start:**
+```bash
+# Check service logs
+gcloud run services logs read ai-voice-frontend --region us-central1
+
+# Verify container health
+curl https://ai-voice-frontend-446760904661.us-central1.run.app/health
+```
+
+**API connectivity issues:**
+```bash
+# Verify environment variables
+gcloud run services describe ai-voice-frontend \
+    --region us-central1 \
+    --format="value(spec.template.spec.template.spec.containers[0].env[].value)"
+
+# Test backend connectivity
+curl https://ai-voice-backend-446760904661.us-central1.run.app/health
+```
+
+### 💰 Cost Optimization
+
+```bash
+# Set request timeout to reduce costs
+gcloud run services update ai-voice-frontend \
+    --region us-central1 \
+    --timeout 300
+
+# Configure minimum instances (0 for cost optimization)
+gcloud run services update ai-voice-frontend \
+    --region us-central1 \
+    --min-instances 0
+
+# Monitor usage and costs
+gcloud run services describe ai-voice-frontend \
+    --region us-central1 \
+    --format="table(status.traffic[].latestRevision,status.traffic[].percent)"
+```
+
+### 🔄 Rollback & Version Management
+
+```bash
+# List all revisions
+gcloud run revisions list --service ai-voice-frontend --region us-central1
+
+# Rollback to previous revision
+gcloud run services update-traffic ai-voice-frontend \
+    --to-revisions ai-voice-frontend-00001=100 \
+    --region us-central1
+
+# Delete old revisions
+gcloud run revisions delete REVISION_NAME --region us-central1
+```
+
+### 🌐 Production Deployment Checklist
+
+- [ ] Backend service deployed and healthy
+- [ ] Artifact Registry repository created
+- [ ] Docker authentication configured
+- [ ] Environment variables set correctly
+- [ ] Cloud Build configuration tested
+- [ ] Service deployed with appropriate resource limits
+- [ ] Health checks passing
+- [ ] Custom domain configured (optional)
+- [ ] SSL certificate provisioned
+- [ ] Monitoring and alerting configured
+- [ ] IAM permissions properly configured
+
+### 📚 Additional Resources
+
+- [Google Cloud Run Documentation](https://cloud.google.com/run/docs)
+- [Artifact Registry Documentation](https://cloud.google.com/artifact-registry/docs)
+- [Cloud Build Documentation](https://cloud.google.com/build/docs)
+- [Container Optimization Best Practices](https://cloud.google.com/run/docs/tips/general)
+
+---
+
+### 🚀 Other Cloud Platforms
+
+#### AWS ECS / Fargate
 ```bash
 # Tag for AWS ECR
 docker tag ai-voice-frontend:latest <account>.dkr.ecr.region.amazonaws.com/ai-voice-frontend:latest
 
+# Push to ECR
+aws ecr get-login-password --region region | docker login --username AWS --password-stdin <account>.dkr.ecr.region.amazonaws.com
+docker push <account>.dkr.ecr.region.amazonaws.com/ai-voice-frontend:latest
+```
+
+#### Azure Container Instances
+```bash
 # Tag for Azure ACR
 docker tag ai-voice-frontend:latest <registry>.azurecr.io/ai-voice-frontend:latest
+
+# Push to ACR
+az acr login --name <registry>
+docker push <registry>.azurecr.io/ai-voice-frontend:latest
 ```
 
 ### 🐛 Troubleshooting

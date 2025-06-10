@@ -106,7 +106,12 @@ const VoiceControls = ({
               disabled={disabled}
               sx={{ 
                 minWidth: 160,
-                animation: 'pulse 1.5s ease-in-out infinite'
+                animation: 'pulse 1.5s ease-in-out infinite',
+                '@keyframes pulse': {
+                  '0%': { opacity: 1 },
+                  '50%': { opacity: 0.7 },
+                  '100%': { opacity: 1 }
+                }
               }}
             >
               Stop Recording
@@ -115,14 +120,7 @@ const VoiceControls = ({
         </Box>
       )}
 
-      {/* CSS for pulse animation */}
-      <style jsx>{`
-        @keyframes pulse {
-          0% { opacity: 1; }
-          50% { opacity: 0.7; }
-          100% { opacity: 1; }
-        }
-      `}</style>
+
     </Paper>
   );
 };

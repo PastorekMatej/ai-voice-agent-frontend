@@ -1,12 +1,11 @@
 // ConfigurationValidator.js
 // Component for validating ElevenLabs configuration before connection
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Alert, 
   AlertTitle, 
   Box, 
-  Button, 
   Collapse, 
   Link, 
   Typography,
@@ -19,7 +18,6 @@ import {
 import { 
   CheckCircle,
   Error,
-  Warning,
   ExpandMore,
   ExpandLess,
   OpenInNew
@@ -31,12 +29,12 @@ const ConfigurationValidator = ({ onValidationChange }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [overallValid, setOverallValid] = useState(false);
 
-  // Validation checks
-  const validationChecks = [
+  // Memoize validation checks to prevent useEffect dependency issues
+  const validationChecks = useMemo(() => [
     {
       id: 'apiKey',
       name: 'API Key',
-      check: () => elevenLabsConfig.apiKey && elevenLabsConfig.apiKey.startsWith('sk-'),
+      check: () => elevenLabsConfig.apiKey && elevenLabsConfig.apiKey.startsWith('sk_'),
       error: 'ElevenLabs API key is missing or invalid',
       help: 'Get your API key from https://elevenlabs.io/app/settings/api-keys'
     },
@@ -68,7 +66,15 @@ const ConfigurationValidator = ({ onValidationChange }) => {
       error: 'Microphone access requires HTTPS or localhost',
       help: 'Use HTTPS for production or localhost for development'
     }
-  ];
+  ], []);
+
+  // Store the validation callback in a ref to prevent infinite loops
+  const memoizedOnValidationChange = useRef(onValidationChange || (() => {}));
+  
+  // Update the ref when the callback changes
+  useEffect(() => {
+    memoizedOnValidationChange.current = onValidationChange || (() => {});
+  }, [onValidationChange]);
 
   // Run validation checks
   useEffect(() => {
@@ -93,10 +99,10 @@ const ConfigurationValidator = ({ onValidationChange }) => {
     setOverallValid(allValid);
     
     // Notify parent component
-    if (onValidationChange) {
-      onValidationChange(allValid, results);
+    if (memoizedOnValidationChange.current) {
+      memoizedOnValidationChange.current(allValid, results);
     }
-  }, [onValidationChange]);
+  }, [validationChecks]);
 
   const getValidationIcon = (isValid) => {
     return isValid ? 
@@ -163,16 +169,18 @@ const ConfigurationValidator = ({ onValidationChange }) => {
                   <ListItemText
                     primary={check.name}
                     secondary={
-                      result.valid ? 
-                        'Configured correctly' : 
-                        <Box>
-                          <Typography variant="body2" color="error" gutterBottom>
+                      result.valid ? (
+                        'Configured correctly'
+                      ) : (
+                        <span>
+                          <span style={{ color: 'red', display: 'block', marginBottom: '4px' }}>
                             {result.error}
-                          </Typography>
-                          <Typography variant="caption">
+                          </span>
+                          <span style={{ fontSize: '0.75rem', color: 'gray', display: 'block' }}>
                             {result.help}
-                          </Typography>
-                        </Box>
+                          </span>
+                        </span>
+                      )
                     }
                   />
                 </ListItem>

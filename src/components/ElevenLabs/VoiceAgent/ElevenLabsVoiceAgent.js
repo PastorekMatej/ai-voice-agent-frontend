@@ -79,8 +79,10 @@ const ElevenLabsVoiceAgent = () => {
   };
 
   const handleStartRecording = () => {
-    if (isConnected) {
+    if (isConnected && !isRecording) {
       startRecording();
+    } else if (!isConnected) {
+      console.warn('Cannot start recording: Not connected to ElevenLabs');
     }
   };
 

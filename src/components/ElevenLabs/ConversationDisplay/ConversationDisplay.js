@@ -43,6 +43,14 @@ const TranscriptPreview = styled(Paper)(({ theme }) => ({
   border: '2px dashed #2196f3'
 }));
 
+const BlinkingCursor = styled('span')(({ theme }) => ({
+  animation: 'blink 1s infinite',
+  '@keyframes blink': {
+    '0%, 50%': { opacity: 1 },
+    '51%, 100%': { opacity: 0 }
+  }
+}));
+
 const ConversationDisplay = ({
   conversation = [],
   isRecording = false,
@@ -162,7 +170,9 @@ const ConversationDisplay = ({
             <TranscriptPreview>
               <Typography variant="body1">
                 {currentTranscript}
-                <span style={{ animation: 'blink 1s infinite' }}>|</span>
+                <BlinkingCursor>
+                  |
+                </BlinkingCursor>
               </Typography>
             </TranscriptPreview>
           </Box>
@@ -172,13 +182,7 @@ const ConversationDisplay = ({
         <div ref={messagesEndRef} />
       </Box>
 
-      {/* CSS for blinking cursor */}
-      <style jsx>{`
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-      `}</style>
+
     </Paper>
   );
 };

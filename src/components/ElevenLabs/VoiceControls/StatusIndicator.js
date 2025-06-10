@@ -47,7 +47,12 @@ const StatusIndicator = ({
         sx={{
           animation: isRecording ? 'pulse 1s ease-in-out infinite' : 'none',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
+          '@keyframes pulse': {
+            '0%': { opacity: 1, transform: 'scale(1)' },
+            '50%': { opacity: 0.7, transform: 'scale(1.1)' },
+            '100%': { opacity: 1, transform: 'scale(1)' }
+          }
         }}
       >
         {getStatusIcon()}
@@ -61,15 +66,6 @@ const StatusIndicator = ({
       >
         {getStatusText()}
       </Typography>
-
-      {/* CSS for pulse animation */}
-      <style jsx>{`
-        @keyframes pulse {
-          0% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.1); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
     </Box>
   );
 };

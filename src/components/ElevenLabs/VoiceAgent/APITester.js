@@ -13,7 +13,7 @@ import {
   Chip
 } from '@mui/material';
 import { 
-  TestTube,
+  Science,
   CheckCircle,
   Error,
   Warning
@@ -80,7 +80,10 @@ const APITester = () => {
     setTestResults(prev => ({ ...prev, websocket: null }));
 
     try {
-      const wsUrl = `${elevenLabsConfig.websocketUrl}?agent_id=${elevenLabsConfig.agentId}`;
+      // ElevenLabs WebSocket requires API key in URL parameters
+      const wsUrl = `${elevenLabsConfig.websocketUrl}?agent_id=${elevenLabsConfig.agentId}&xi_api_key=${elevenLabsConfig.apiKey}`;
+      console.log('Testing WebSocket connection to:', wsUrl.replace(elevenLabsConfig.apiKey, '***'));
+      
       const ws = new WebSocket(wsUrl);
 
       const timeout = setTimeout(() => {
@@ -112,6 +115,7 @@ const APITester = () => {
 
       ws.onerror = (error) => {
         clearTimeout(timeout);
+        console.error('WebSocket error:', error);
         setTestResults(prev => ({ 
           ...prev, 
           websocket: { 
@@ -126,11 +130,12 @@ const APITester = () => {
       ws.onclose = (event) => {
         if (event.code !== 1000) { // Not normal closure
           clearTimeout(timeout);
+          console.log('WebSocket closed with code:', event.code, 'reason:', event.reason);
           setTestResults(prev => ({ 
             ...prev, 
             websocket: { 
               success: false, 
-              message: `WebSocket closed unexpectedly: ${event.code} ${event.reason}`,
+              message: `WebSocket closed unexpectedly: ${event.code}${event.reason ? ' - ' + event.reason : ''}`,
               details: { code: event.code, reason: event.reason }
             } 
           }));
@@ -165,11 +170,13 @@ const APITester = () => {
     <Card sx={{ mb: 2 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <TestTube /> API Connection Tester
+          <Science /> API Connection Tester
         </Typography>
         
         <Typography variant="body2" color="text.secondary" gutterBottom>
           Test your ElevenLabs API credentials and connection before starting a conversation.
+          <br />
+          <em>Note: WebSocket test may fail due to API handshake requirements, but actual conversations will work if API key is valid.</em>
         </Typography>
 
         <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>

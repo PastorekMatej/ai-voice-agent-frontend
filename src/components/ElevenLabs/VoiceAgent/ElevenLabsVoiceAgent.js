@@ -1,11 +1,13 @@
 // ElevenLabsVoiceAgent.js
 // Main component for ElevenLabs Conversational AI integration
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Alert } from '@mui/material';
-import elevenLabsConfig, { validateConfig } from '../../../config/elevenlabs';
+import { validateConfig } from '../../../config/elevenlabs';
 import VoiceControls from '../VoiceControls/VoiceControls';
 import ConversationDisplay from '../ConversationDisplay/ConversationDisplay';
+import ConfigurationValidator from './ConfigurationValidator';
+import APITester from './APITester';
 import { useElevenLabsConversation } from '../../../hooks/ElevenLabs';
 
 const ElevenLabsVoiceAgent = () => {
@@ -13,6 +15,7 @@ const ElevenLabsVoiceAgent = () => {
   const [isConfigValid, setIsConfigValid] = useState(false);
   const [configError, setConfigError] = useState(null);
   const [conversation, setConversation] = useState([]);
+  const [validationResults, setValidationResults] = useState({});
   
   // ElevenLabs conversation hook
   const {
@@ -26,22 +29,24 @@ const ElevenLabsVoiceAgent = () => {
     connect,
     disconnect,
     startRecording,
-    stopRecording,
-    sendContextualUpdate
+    stopRecording
   } = useElevenLabsConversation();
 
-  // Validate configuration on mount
-  useEffect(() => {
-    try {
-      validateConfig();
-      setIsConfigValid(true);
+  // Handle validation results from ConfigurationValidator
+  const handleValidationChange = (isValid, results) => {
+    setIsConfigValid(isValid);
+    setValidationResults(results);
+    
+    if (!isValid) {
+      const errors = Object.values(results)
+        .filter(r => !r.valid)
+        .map(r => r.error)
+        .join(', ');
+      setConfigError(errors);
+    } else {
       setConfigError(null);
-    } catch (error) {
-      setIsConfigValid(false);
-      setConfigError(error.message);
-      console.error('ElevenLabs configuration error:', error);
     }
-  }, []);
+  };
 
   // Handle conversation updates
   useEffect(() => {
@@ -85,22 +90,6 @@ const ElevenLabsVoiceAgent = () => {
     }
   };
 
-  // Render configuration error if invalid
-  if (!isConfigValid) {
-    return (
-      <Container maxWidth="md">
-        <Box sx={{ mt: 4 }}>
-          <Alert severity="error">
-            <Typography variant="h6">Configuration Error</Typography>
-            <Typography variant="body2">
-              {configError || 'Invalid ElevenLabs configuration. Please check your environment variables.'}
-            </Typography>
-          </Alert>
-        </Box>
-      </Container>
-    );
-  }
-
   return (
     <Container maxWidth="md">
       <Box sx={{ py: 3 }}>
@@ -109,12 +98,18 @@ const ElevenLabsVoiceAgent = () => {
           ElevenLabs Voice Agent
         </Typography>
         
+        {/* Configuration Validator */}
+        <ConfigurationValidator onValidationChange={handleValidationChange} />
+        
+        {/* API Tester */}
+        {isConfigValid && <APITester />}
+        
         {/* Error Display */}
         {conversationError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {conversationError}
           </Alert>
-        )}
+                 )}
         
         {/* Voice Controls */}
         <VoiceControls
@@ -125,6 +120,7 @@ const ElevenLabsVoiceAgent = () => {
           onDisconnect={handleDisconnect}
           onStartRecording={handleStartRecording}
           onStopRecording={handleStopRecording}
+          disabled={!isConfigValid}
         />
         
         {/* Conversation Display */}

@@ -5,4 +5,6 @@ export { default as ElevenLabsVoiceAgent } from './VoiceAgent/ElevenLabsVoiceAge
 export { default as VoiceControls } from './VoiceControls/VoiceControls';
 export { default as ConversationDisplay } from './ConversationDisplay/ConversationDisplay';
 export { default as StatusIndicator } from './VoiceControls/StatusIndicator';
-export { default as VoiceVisualizer } from './ConversationDisplay/VoiceVisualizer'; 
+export { default as VoiceVisualizer } from './ConversationDisplay/VoiceVisualizer';
+export { default as ConfigurationValidator } from './VoiceAgent/ConfigurationValidator';
+export { default as APITester } from './VoiceAgent/APITester'; 

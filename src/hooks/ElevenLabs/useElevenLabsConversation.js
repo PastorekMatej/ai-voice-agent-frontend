@@ -393,7 +393,9 @@ const useElevenLabsConversation = () => {
       
       setIsRecording(false);
       setAgentMode('listening');
-      console.log('🛑 Stopped recording');
+      // Clear the transcript to remove the preview after recording stops
+      setTranscript('');
+      console.log('🛑 Stopped recording and cleared transcript');
       
     } catch (err) {
       console.error('❌ Error stopping recording:', err);
@@ -451,6 +453,11 @@ const useElevenLabsConversation = () => {
     };
   }, []); // Empty dependency array to prevent re-running
 
+  // Clear transcript function
+  const clearTranscript = useCallback(() => {
+    setTranscript('');
+  }, []);
+
   return {
     // State
     isConnected,
@@ -465,7 +472,8 @@ const useElevenLabsConversation = () => {
     connect,
     disconnect,
     startRecording,
-    stopRecording
+    stopRecording,
+    clearTranscript
   };
 };
 

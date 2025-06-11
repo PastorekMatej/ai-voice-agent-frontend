@@ -2,7 +2,7 @@
 // Component for displaying conversation history and real-time transcripts
 
 import React, { useEffect, useRef } from 'react';
-import { Box, Paper, Typography, Divider } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 // Styled components for chat bubbles
@@ -77,52 +77,26 @@ const ConversationDisplay = ({
   };
 
   return (
-    <Paper 
-      elevation={2} 
+    <Box
       sx={{ 
-        height: 400,
+        height: '100vh',
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        backgroundColor: 'white'
       }}
     >
-      {/* Header */}
-      <Box sx={{ p: 2, backgroundColor: 'primary.main', color: 'white' }}>
-        <Typography variant="h6">
-          Conversation {agentMode === 'speaking' && '🔊'}
-        </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.9 }}>
-          {conversation.length === 0 ? 'No messages yet' : `${conversation.length} messages`}
-          {conversationId && ` • ID: ${conversationId.slice(0, 8)}...`}
-        </Typography>
-      </Box>
-
-      <Divider />
-
       {/* Messages Container */}
       <Box 
         sx={{ 
           flex: 1,
           overflowY: 'auto',
-          p: 2,
+          p: 3,
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#f5f5f5',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e0e0e0' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          backgroundColor: 'white'
         }}
       >
-        {/* Show welcome message if no conversation */}
-        {conversation.length === 0 && !currentTranscript && (
-          <Box sx={{ textAlign: 'center', mt: 4, opacity: 0.6 }}>
-            <Typography variant="body1" color="text.secondary">
-              🎤 Start a conversation with ElevenLabs
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Click "Connect" and then "Start Talking" to begin
-            </Typography>
-          </Box>
-        )}
-
         {/* Conversation History */}
         {conversation.map((entry) => (
           <Box key={entry.id} sx={{ mb: 1 }}>
@@ -164,8 +138,9 @@ const ConversationDisplay = ({
           </Box>
         ))}
 
-        {/* Real-time Transcript Preview */}
-        {isRecording && currentTranscript && (
+        {/* Real-time Transcript Preview - only show while actively recording and not already in conversation */}
+        {isRecording && currentTranscript && currentTranscript.trim() && 
+         !conversation.some(entry => entry.type === 'user' && entry.transcript === currentTranscript) && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <TranscriptPreview>
               <Typography variant="body1">
@@ -181,9 +156,7 @@ const ConversationDisplay = ({
         {/* Auto-scroll target */}
         <div ref={messagesEndRef} />
       </Box>
-
-
-    </Paper>
+    </Box>
   );
 };
 

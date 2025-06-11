@@ -1,0 +1,16 @@
+[33mbf2ba40[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop-elevenlabs[m[33m)[m first working version of ElevenLabs ai voice agent
+[33mfbdf8d0[m fix: Update exports and finalize Step 5 - Real API Integration
+[33m7695822[m Direct ElevenLabs Conversational AI WebSocket implementation + UI
+[33ma172691[m feat: Add ElevenLabs project structure and components - Complete component architecture for ElevenLabs integration - Main VoiceAgent component with configuration validation - Voice controls with connection and recording management - Conversation display with chat-style interface - Custom hooks for ElevenLabs conversation management - Updated dependencies and removed unused packages - Status: Structure complete, API integration pending (Step 4)
+[33mfb90639[m[33m ([m[1;33mtag: [m[1;33mv0.3.1[m[33m, [m[1;33mtag: [m[1;33mv0.3.0[m[33m, [m[1;31morigin/develop[m[33m, [m[1;32mfeature/google-cloud-deployment[m[33m, [m[1;32mdevelop[m[33m)[m feat,doc,test: modification of DOckerfile for Google Cloud Deployment
+[33mb411929[m[33m ([m[1;33mtag: [m[1;33mv0.2.0[m[33m, [m[1;32mfeature/docker-frontend-setup[m[33m)[m test,feat,doc: Docker adaptations, OK test, and update of README documentation
+[33m95cec1b[m feat: Docker implementation in env app and config files for frontend
+[33mebfac2f[m feat:Docker infrastructure files for frontend
+[33m70aaa92[m Initial commit for benchmarking
+[33m2ce2c70[m version avec voix française OK
+[33md95c04e[m Implementation francais v1
+[33m1d59006[m New image feature
+[33m89ff11c[m button version 2
+[33m11b9116[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m, [m[1;33mtag: [m[1;33mv1.0.0[m[33m, [m[1;33mtag: [m[1;33mv0.1.0[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m Stabilize version v1.0.0
+[33m52a5509[m Initial frontend commit
+[33mf6251f6[m Initialize project using Create React App

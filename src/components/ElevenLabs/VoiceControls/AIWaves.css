@@ -1,0 +1,203 @@
+/* AIWaves.css */
+/* Animation styles for the AI Waves component */
+
+.ai-waves-container {
+  position: relative;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* Wave animation speeds */
+.waves-fast .wave-layer-1 {
+  animation: wave-flow-1 2s ease-in-out infinite;
+}
+
+.waves-fast .wave-layer-2 {
+  animation: wave-flow-2 2.2s ease-in-out infinite;
+}
+
+.waves-fast .wave-layer-3 {
+  animation: wave-flow-3 2.4s ease-in-out infinite;
+}
+
+.waves-medium .wave-layer-1 {
+  animation: wave-flow-1 3s ease-in-out infinite;
+}
+
+.waves-medium .wave-layer-2 {
+  animation: wave-flow-2 3.3s ease-in-out infinite;
+}
+
+.waves-medium .wave-layer-3 {
+  animation: wave-flow-3 3.6s ease-in-out infinite;
+}
+
+.waves-slow .wave-layer-1 {
+  animation: wave-flow-1 5s ease-in-out infinite;
+}
+
+.waves-slow .wave-layer-2 {
+  animation: wave-flow-2 5.5s ease-in-out infinite;
+}
+
+.waves-slow .wave-layer-3 {
+  animation: wave-flow-3 6s ease-in-out infinite;
+}
+
+/* Wave flow animations */
+@keyframes wave-flow-1 {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  25% {
+    transform: translateY(-10px) scaleY(1.1);
+  }
+  50% {
+    transform: translateY(-5px) scaleY(0.9);
+  }
+  75% {
+    transform: translateY(-15px) scaleY(1.05);
+  }
+}
+
+@keyframes wave-flow-2 {
+  0%, 100% {
+    transform: translateY(0) scaleY(1) scaleX(1);
+  }
+  30% {
+    transform: translateY(-8px) scaleY(1.2) scaleX(0.95);
+  }
+  60% {
+    transform: translateY(-12px) scaleY(0.85) scaleX(1.05);
+  }
+  90% {
+    transform: translateY(-4px) scaleY(1.1) scaleX(0.98);
+  }
+}
+
+@keyframes wave-flow-3 {
+  0%, 100% {
+    transform: translateY(0) scaleX(1);
+  }
+  20% {
+    transform: translateY(-6px) scaleX(1.03);
+  }
+  40% {
+    transform: translateY(-18px) scaleX(0.97);
+  }
+  70% {
+    transform: translateY(-10px) scaleX(1.08);
+  }
+  85% {
+    transform: translateY(-2px) scaleX(0.99);
+  }
+}
+
+/* Mesh overlay animation */
+.mesh-overlay {
+  animation: mesh-pulse 4s ease-in-out infinite;
+}
+
+@keyframes mesh-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Particle animations */
+.particle {
+  animation-duration: 6s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.particle-1 {
+  animation-name: float-1;
+}
+
+.particle-2 {
+  animation-name: float-2;
+  animation-delay: 2s;
+}
+
+.particle-3 {
+  animation-name: float-3;
+  animation-delay: 4s;
+}
+
+@keyframes float-1 {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(10px, -20px);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-5px, -35px);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translate(15px, -15px);
+    opacity: 0.9;
+  }
+}
+
+@keyframes float-2 {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.5;
+  }
+  33% {
+    transform: translate(-15px, -25px);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translate(8px, -40px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes float-3 {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translate(-20px, -18px);
+    opacity: 0.8;
+  }
+  80% {
+    transform: translate(12px, -30px);
+    opacity: 0.2;
+  }
+}
+
+/* Fast state enhancements */
+.waves-fast .mesh-overlay {
+  animation-duration: 1.5s;
+}
+
+.waves-fast .particle {
+  animation-duration: 3s;
+}
+
+/* Medium state enhancements */
+.waves-medium .mesh-overlay {
+  animation-duration: 2.5s;
+}
+
+.waves-medium .particle {
+  animation-duration: 4s;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ai-waves-container {
+    border-radius: 10px;
+  }
+} 

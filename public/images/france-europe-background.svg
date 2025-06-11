@@ -1,0 +1,97 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Blue gradient -->
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0066cc" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#0099ff" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#66ccff" stop-opacity="0.4" />
+    </linearGradient>
+    
+    <!-- Red gradient -->
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cc0000" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#ff3333" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#ff6666" stop-opacity="0.4" />
+    </linearGradient>
+    
+    <!-- Yellow gradient -->
+    <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffcc00" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#ffdd33" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#ffee66" stop-opacity="0.5" />
+    </linearGradient>
+    
+    <!-- Green gradient -->
+    <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#009900" stop-opacity="0.7" />
+      <stop offset="50%" stop-color="#33cc33" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#66ff66" stop-opacity="0.3" />
+    </linearGradient>
+    
+    <!-- Light blue gradient -->
+    <linearGradient id="lightBlueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#66ccff" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#99ddff" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#cceeff" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+  
+  <!-- White background -->
+  <rect width="800" height="600" fill="#ffffff" />
+  
+  <!-- Abstract flowing shapes -->
+  
+  <!-- Large blue curved flow from top-right -->
+  <path d="M600,0 C650,50 700,100 750,150 C780,200 800,250 800,300 L800,400 C750,350 700,300 650,250 C600,200 550,150 500,100 C450,50 400,25 350,50 C300,75 250,125 200,175 Z" 
+        fill="url(#blueGradient)" />
+        
+  <!-- Yellow dynamic shape in center-right -->
+  <path d="M500,200 C600,180 650,220 700,250 C750,280 780,320 800,360 L800,480 C750,450 700,420 650,380 C600,340 550,300 500,280 C450,260 400,270 380,300 C360,330 370,370 400,400 C430,430 470,440 500,430 Z" 
+        fill="url(#yellowGradient)" />
+        
+  <!-- Red angular flow from left -->
+  <path d="M0,150 C50,120 100,140 150,160 C200,180 250,200 300,180 C350,160 400,120 450,140 C500,160 520,200 500,240 C480,280 440,300 400,280 C360,260 320,220 280,200 C240,180 200,190 160,210 C120,230 80,250 40,240 C20,235 10,220 0,200 Z" 
+        fill="url(#redGradient)" />
+        
+  <!-- Green organic shape bottom-left -->
+  <path d="M0,400 C80,380 120,420 160,450 C200,480 240,500 280,480 C320,460 340,420 320,380 C300,340 260,320 220,340 C180,360 160,400 140,440 C120,480 100,520 80,540 C60,560 40,570 20,560 C10,555 5,545 0,535 Z" 
+        fill="url(#greenGradient)" />
+        
+  <!-- Light blue flowing ribbons -->
+  <path d="M200,0 C250,30 300,60 350,80 C400,100 450,110 500,100 C550,90 600,70 650,80 C700,90 750,110 800,130 L800,200 C750,180 700,160 650,150 C600,140 550,150 500,170 C450,190 400,210 350,200 C300,190 250,170 200,150 Z" 
+        fill="url(#lightBlueGradient)" />
+        
+  <!-- Additional dynamic elements -->
+  
+  <!-- Blue geometric segments -->
+  <g fill="url(#blueGradient)">
+    <rect x="100" y="50" width="60" height="15" rx="7" transform="rotate(25 130 57)" />
+    <rect x="150" y="80" width="40" height="12" rx="6" transform="rotate(45 170 86)" />
+    <rect x="200" y="120" width="50" height="10" rx="5" transform="rotate(35 225 125)" />
+  </g>
+  
+  <!-- Red geometric segments -->
+  <g fill="url(#redGradient)">
+    <rect x="50" y="250" width="80" height="20" rx="10" transform="rotate(-15 90 260)" />
+    <rect x="120" y="300" width="60" height="18" rx="9" transform="rotate(-25 150 309)" />
+    <rect x="180" y="350" width="70" height="16" rx="8" transform="rotate(-35 215 358)" />
+  </g>
+  
+  <!-- Yellow flowing elements -->
+  <g fill="url(#yellowGradient)">
+    <ellipse cx="600" cy="300" rx="40" ry="20" transform="rotate(30 600 300)" />
+    <ellipse cx="650" cy="350" rx="35" ry="18" transform="rotate(45 650 350)" />
+    <ellipse cx="700" cy="400" rx="30" ry="15" transform="rotate(60 700 400)" />
+  </g>
+  
+  <!-- Curved connecting lines -->
+  <g stroke-width="3" fill="none" opacity="0.4">
+    <path d="M100,100 Q300,200 500,150 T700,200" stroke="url(#blueGradient)" />
+    <path d="M150,250 Q350,350 550,300 T750,350" stroke="url(#redGradient)" />
+    <path d="M50,350 Q250,450 450,400 T650,450" stroke="url(#greenGradient)" />
+  </g>
+  
+  <!-- Central intersection point -->
+  <circle cx="400" cy="300" r="8" fill="url(#yellowGradient)" opacity="0.8" />
+  <circle cx="400" cy="300" r="15" fill="none" stroke="url(#blueGradient)" stroke-width="2" opacity="0.6" />
+</svg> 

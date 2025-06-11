@@ -1,0 +1,105 @@
+/* PulsingAIOrb.css */
+/* Animation styles for the Pulsing AI Orb component */
+
+.pulsing-orb-container {
+  position: relative;
+}
+
+/* Breathing animations for different states */
+@keyframes breathe-fast {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.2); 
+  }
+}
+
+@keyframes breathe-medium {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.1); 
+  }
+}
+
+@keyframes breathe-slow {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.05); 
+  }
+}
+
+/* Ripple animations for recording and speaking states */
+@keyframes ripple-fast {
+  0% { 
+    transform: scale(0.8); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: scale(1.4); 
+    opacity: 0; 
+  }
+}
+
+@keyframes ripple-medium {
+  0% { 
+    transform: scale(0.8); 
+    opacity: 0.8; 
+  }
+  100% { 
+    transform: scale(1.6); 
+    opacity: 0; 
+  }
+}
+
+/* Shimmer effect for inner highlight */
+@keyframes shimmer {
+  0%, 100% { 
+    opacity: 0.4; 
+  }
+  50% { 
+    opacity: 0.8; 
+  }
+}
+
+/* Animation classes */
+.orb-breathe-fast {
+  animation: breathe-fast 0.8s ease-in-out infinite;
+}
+
+.orb-breathe-medium {
+  animation: breathe-medium 1.5s ease-in-out infinite;
+}
+
+.orb-breathe-slow {
+  animation: breathe-slow 3s ease-in-out infinite;
+}
+
+.orb-ripple-fast {
+  animation: ripple-fast 1s ease-out infinite;
+}
+
+.orb-ripple-fast-delayed {
+  animation: ripple-fast 1s ease-out infinite 0.3s;
+}
+
+.orb-ripple-medium {
+  animation: ripple-medium 2s ease-out infinite;
+}
+
+.orb-ripple-medium-delayed {
+  animation: ripple-medium 2s ease-out infinite 0.5s;
+}
+
+.orb-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Connected state glow effect */
+.orb-connected {
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+} 

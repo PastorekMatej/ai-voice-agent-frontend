@@ -2,20 +2,16 @@
 // Main component for ElevenLabs Conversational AI integration
 
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Alert } from '@mui/material';
-import { validateConfig } from '../../../config/elevenlabs';
+import { Box, Alert } from '@mui/material';
 import VoiceControls from '../VoiceControls/VoiceControls';
 import ConversationDisplay from '../ConversationDisplay/ConversationDisplay';
-import ConfigurationValidator from './ConfigurationValidator';
-import APITester from './APITester';
 import { useElevenLabsConversation } from '../../../hooks/ElevenLabs';
 
 const ElevenLabsVoiceAgent = () => {
   // State management
-  const [isConfigValid, setIsConfigValid] = useState(false);
-  const [configError, setConfigError] = useState(null);
   const [conversation, setConversation] = useState([]);
-  const [validationResults, setValidationResults] = useState({});
+  const [lastProcessedTranscript, setLastProcessedTranscript] = useState('');
+  const [lastProcessedResponse, setLastProcessedResponse] = useState('');
   
   // ElevenLabs conversation hook
   const {
@@ -29,43 +25,50 @@ const ElevenLabsVoiceAgent = () => {
     connect,
     disconnect,
     startRecording,
-    stopRecording
+    stopRecording,
+    clearTranscript
   } = useElevenLabsConversation();
 
-  // Handle validation results from ConfigurationValidator
-  const handleValidationChange = (isValid, results) => {
-    setIsConfigValid(isValid);
-    setValidationResults(results);
-    
-    if (!isValid) {
-      const errors = Object.values(results)
-        .filter(r => !r.valid)
-        .map(r => r.error)
-        .join(', ');
-      setConfigError(errors);
-    } else {
-      setConfigError(null);
-    }
-  };
 
-  // Handle conversation updates
+
+  // Handle conversation updates with deduplication
   useEffect(() => {
-    if (transcript || response) {
+    // Handle new transcript (user message)
+    if (transcript && transcript !== lastProcessedTranscript && transcript.trim()) {
       const newEntry = {
-        id: Date.now(),
+        id: `user-${Date.now()}`,
         timestamp: new Date(),
-        transcript: transcript || '',
-        response: response || '',
-        type: transcript ? 'user' : 'agent'
+        transcript: transcript,
+        response: '',
+        type: 'user'
       };
       
       setConversation(prev => [...prev, newEntry]);
+      setLastProcessedTranscript(transcript);
+      
+      // Clear the transcript immediately after adding to conversation to prevent duplicates
+      clearTranscript();
     }
-  }, [transcript, response]);
+  }, [transcript, lastProcessedTranscript, isRecording, clearTranscript]);
+
+  useEffect(() => {
+    // Handle new response (agent message)
+    if (response && response !== lastProcessedResponse && response.trim()) {
+      const newEntry = {
+        id: `agent-${Date.now()}`,
+        timestamp: new Date(),
+        transcript: '',
+        response: response,
+        type: 'agent'
+      };
+      
+      setConversation(prev => [...prev, newEntry]);
+      setLastProcessedResponse(response);
+    }
+  }, [response, lastProcessedResponse]);
 
   // Event handlers
   const handleConnect = async () => {
-    if (!isConfigValid) return;
     try {
       await connect();
     } catch (error) {
@@ -76,13 +79,13 @@ const ElevenLabsVoiceAgent = () => {
   const handleDisconnect = () => {
     disconnect();
     setConversation([]);
+    setLastProcessedTranscript('');
+    setLastProcessedResponse('');
   };
 
   const handleStartRecording = () => {
     if (isConnected && !isRecording) {
       startRecording();
-    } else if (!isConnected) {
-      console.warn('Cannot start recording: Not connected to ElevenLabs');
     }
   };
 
@@ -92,40 +95,49 @@ const ElevenLabsVoiceAgent = () => {
     }
   };
 
-  return (
-    <Container maxWidth="md">
-      <Box sx={{ py: 3 }}>
-        {/* Header */}
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          ElevenLabs Voice Agent
-        </Typography>
+    return (
+    <Box sx={{ 
+      display: 'flex', 
+      height: '100vh',
+      width: '100%'
+    }}>
+      {/* Left Side - AI Waves and Controls */}
+      <Box sx={{ 
+        flex: 1,
+        backgroundColor: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: 3
+      }}>
+
         
-        {/* Configuration Validator */}
-        <ConfigurationValidator onValidationChange={handleValidationChange} />
-        
-        {/* API Tester */}
-        {isConfigValid && <APITester />}
-        
-        {/* Error Display */}
-        {conversationError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {conversationError}
-          </Alert>
-                 )}
-        
-        {/* Voice Controls */}
-        <VoiceControls
-          isConnected={isConnected}
-          isRecording={isRecording}
-          agentMode={agentMode}
-          onConnect={handleConnect}
-          onDisconnect={handleDisconnect}
-          onStartRecording={handleStartRecording}
-          onStopRecording={handleStopRecording}
-          disabled={!isConfigValid}
-        />
-        
-        {/* Conversation Display */}
+        {/* AI Waves */}
+        <Box sx={{ 
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <VoiceControls
+            isConnected={isConnected}
+            isRecording={isRecording}
+            agentMode={agentMode}
+            onConnect={handleConnect}
+            onDisconnect={handleDisconnect}
+            onStartRecording={handleStartRecording}
+            onStopRecording={handleStopRecording}
+          />
+        </Box>
+      </Box>
+      
+      {/* Right Side - Conversation */}
+      <Box sx={{ 
+        flex: 1,
+        backgroundColor: 'white',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         <ConversationDisplay
           conversation={conversation}
           isRecording={isRecording}
@@ -134,7 +146,7 @@ const ElevenLabsVoiceAgent = () => {
           conversationId={conversationId}
         />
       </Box>
-    </Container>
+    </Box>
   );
 };
 
